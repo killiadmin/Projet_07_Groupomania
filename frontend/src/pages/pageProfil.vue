@@ -69,7 +69,7 @@ export default{
       </div>
           <button class="w-100 btn btn-lg btn-warning" type="submit" v-if="mode == 'cancelModify'" @click.prevent="modifyAccount()">Modifier le profil</button>
           <button class="w-100 btn btn-lg btn-warning" type="submit" v-else @click.prevent="backModifyAccount()">Ne pas modifier</button>
-          <button class="w-100 btn btn-lg btn-danger" type="submit" @click="deleteProfil()" v-if="mode == 'cancelModify'">Supprimer le profil</button>
+          <button class="w-100 btn btn-lg btn-danger" type="submit"  v-if="mode == 'cancelModify'" @click="deleteProfil()">Supprimer le profil</button>
           <button class="w-100 btn btn-lg btn-success" type="submit" v-else>Modifier mon profil</button>
     </form>
     </main>

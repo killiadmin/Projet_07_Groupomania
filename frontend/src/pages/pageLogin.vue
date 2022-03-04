@@ -34,7 +34,7 @@ export default {
       switchToLogin() {
         this.mode = "login";
       },
-      showHome() {
+      showHome(){
         this.$router.push("/home");
       },
       createAccount() {
@@ -75,8 +75,9 @@ export default {
       <input v-model="password" type="password" class="form-control" id="floatingPassword" placeholder="Password">
       <label for="floatingPassword">Mot de passe</label>
     </div>
-    <button class="w-100 btn btn-lg btn-success" type="submit" @click="showHome()" :disabled=!validateFields v-if="mode == 'login'" >Se connecter</button>
-    <button class="w-100 btn btn-lg btn-success" type="submit" @click="showHome()" :disabled=!validateFields v-else >Créer mon compte</button>
+      <button class="w-100 btn btn-lg btn-success" type="submit" @click="showHome()" :disabled=!validateFields v-if="mode == 'login'" >Se connecter</button>
+      <button class="w-100 btn btn-lg btn-success" type="submit" @click="showHome()" :disabled=!validateFields v-else >Créer mon compte</button>
+
   </form>
 </main>
 </div>

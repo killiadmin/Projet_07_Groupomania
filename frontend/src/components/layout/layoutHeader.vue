@@ -1,17 +1,6 @@
 <script>
 export default {
-    name: "header",
-    methods :{
-      getProfil() {
-      this.$router.push("/profil");
-      },
-      getHome() {
-        this.$router.push("/home");
-      },
-      getLogin() {
-        this.$router.push("/");
-      },
-    }
+    name: "header"
 }
 </script>
 
@@ -21,9 +10,9 @@ export default {
       <div class="container d-flex flex-wrap justify-content-between">
         <img class="d-flex" src="../../../assets/logo_monochrome_white.png" alt="" width="400" height="50">
         <div class="text-end d-flex align-items-center">
-          <button type="button" class="btn btn-secondary text-light me-2" @click="getHome()">Home</button>
-          <button type="button" class="btn btn-secondary text-light me-2" @click="getProfil()">Mon profil</button>
-          <button type="button" class="btn btn-warning text-dark me-2" @click="getLogin()">Se déconnecter</button>
+          <router-link to="/profil"><button type="button" class="btn btn-light text-dark me-2">Mon profil</button></router-link>
+          <router-link to="/home"><button type="button" class="btn btn-secondary text-light me-2">Home</button></router-link>
+          <router-link to="/"><button type="button" class="btn btn-warning text-dark me-2">Se déconnecter</button></router-link>
         </div>
       </div>
     </div>

@@ -6,16 +6,19 @@ export default {
     data() {
         return {
             post: [{
+            id: "1",
             username: "Jean",
             name: "Dupont",
             image: "https://picsum.photos/400/200",
             postMessage: "Reunion à 16h !" ,     
         },{
+            id: "2",
             username: "Michel",
             name: "Marc",
             image: "https://picsum.photos/200/200",
             postMessage: "Pourquoi il n'y a plus de café ?",     
         },{
+            id: "3",
             username: "Catherine",
             name: "Mouen",
             image: "https://picsum.photos/300/200",
@@ -62,6 +65,10 @@ input{
     margin-top: 20px;
 }
 
+.bloc_like{
+    border: 1px solid red;
+    height:10px
+}
 
 
 .d-flex{
