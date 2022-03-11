@@ -1,7 +1,8 @@
 const bcrypt = require("bcrypt");
-const jwt = require("../utils/jwt.utils");
+const jwt = require("jsonwebtoken");
 const models = require("../models");
 const passwordValidator = require("password-validator");
+const fs = require("fs");
 
 const schemaPassValid = new passwordValidator();
 schemaPassValid.is().min(8).is().max(50).has().digits(2).has().not().spaces();
@@ -92,50 +93,126 @@ function signup(req, res) {
 
 // route LOGIN
 
-function login(req, res) {
+async function login(req, res) {
   const email = req.body.email;
   const password = req.body.password;
-
-  //Controle des params du model
-  if (email == null || password == null) {
-    return res
-      .status(400)
-      .json({ error: "Les parametres des utilisateurs sont obsoletes!" });
-  }
-
-  models.User.findOne({
-    where: { email: email },
-  })
-    .then(function (userFound) {
-      if (userFound) {
-        bcrypt.compare(
-          password,
-          userFound.password,
-          function (errBycrypt, resByCrypt) {
-            if (resByCrypt) {
-              return res.status(200).json({
-                userId: userFound.id,
-                token: jwt.generateTokenForUser(userFound),
-              });
-            } else {
-              return res
-                .status(403)
-                .json({ error: "Le mot de passe est invalide" });
-            }
+  try {
+    const user = await models.User.findOne({
+      where: { email: email },
+    });
+    if (!user) {
+      return res
+        .status(401)
+        .json({ error: "Les parametres des utilisateurs sont obsoletes!" });
+    } else {
+      const hash = await bcrypt.compare(password, user.password);
+      if (!hash) {
+        return res.status(401).send({ error: "Le mot de passe est invalide!" });
+      } else {
+        const userToken = jwt.sign(
+          { userId: user.id },
+          process.env.PASSWORD_TOKEN,
+          {
+            expiresIn: "48h",
           }
         );
-      } else {
-        return res
-          .status(404)
-          .json({ error: "L'utilisateur n'existe pas dans la BDD!" });
+        res.status(200).send({
+          id: user.id,
+          userToken,
+        });
       }
+    }
+  } catch (error) {
+    return res.status(500).send({ error: error });
+  }
+}
+
+function getUsers(req, res) {
+  models.User.findAll()
+    .then((users) => {
+      res.status(200).json(users);
     })
-    .catch(function (err) {
-      console.error(err);
-      return res
-        .status(500)
-        .json({ error: "Impossible de connecter l'utilisateur!" });
+    .catch((error) => {
+      console.log(error);
+      res.status(400).json({ error: "Les utilisateurs sont introuvables!" });
     });
 }
 
-module.exports = { signup, login };
+function getUser(req, res) {
+  const id = req.params.id;
+  models.User.findByPk(id)
+    .then((user) => {
+      res.status(200).json(user);
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(400).json({ error: "L'utilisateur est introuvable!" });
+    });
+}
+
+//PUT
+
+async function modifyProfil(req, res) {
+  try {
+    const id = req.params.id;
+    const user = await models.User.findOne({
+      where: {
+        id: id,
+      },
+    });
+    let imageReq = req.file;
+  if (imageReq) {
+      imageReq = `${req.protocol}://${req.get("host")}/images/${
+        req.file.filename
+      }`;
+    } else {
+      imageReq = user.imageUrl;
+    }
+    await models.User.update(
+      {
+        imageUrl: imageReq,
+        firstname: req.body.firstname ? req.body.firstname : user.firstname,
+        lastname: req.body.lastname ? req.body.lastname : user.lastname,
+        email: req.body.email ? req.body.email : user.email,
+      },
+      {
+        where: {
+          id: id,
+        },
+      }
+    );
+    return res.status(200).send({ message: "Modifications enrigistrés" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ error: "Erreur serveur" });
+  }
+}
+
+//DELETE
+
+async function deleteUser(req, res) {
+  const id = req.params.id;
+  const user = await models.User.findOne({
+    where: {
+      id: id,
+    },
+  });
+  try {
+    const filename = user.imageUrl.split("/images/")[1];
+    fs.unlink(`images/${filename}`, () => {
+      models.User.destroy({
+        where: {
+          id: id,
+        },
+      });
+    });
+    return res.status(200).json({ message: "Le compte a bien été supprimé" });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .send({ err: "Il y a eu une erreur lors de la suppression du compte!" });
+  }
+}
+
+module.exports = { signup, login, getUser, getUsers, modifyProfil, deleteUser };

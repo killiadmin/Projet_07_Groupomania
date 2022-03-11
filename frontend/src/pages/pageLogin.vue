@@ -1,4 +1,5 @@
 <script>
+
 export default {
     name: "login",
       data() { 
@@ -13,7 +14,7 @@ export default {
     computed: {
       validateFields() {
         if (this.mode == "create") {
-          if (this.email != "" && this.password != "" && this.name != "" && this.username != "") {
+          if (this.email != "" && this.password != "" && this.lastname != "" && this.firstname != "") {
             return true;
           } else {
             return false;
@@ -34,16 +35,29 @@ export default {
       switchToLogin() {
         this.mode = "login";
       },
-      showHome(){
-        this.$router.push("/home");
+      connectLogin(){
+        const self = this;
+        this.$store.dispatch('login', {
+          email: this.email,
+          password: this.password
+        }).then(function (){
+          self.$router.push('/home');
+        }),function (err) {
+          console.log(err)
+        }
       },
       createAccount() {
+        const self = this;
         this.$store.dispatch('createAccount', {
           email: this.email,
-          name: this.name,
-          username: this.username,
+          lastname: this.lastname,
+          firstname: this.firstname,
           password: this.password
-        })
+        }).then(function (){
+          self.connectLogin();
+        }),function (err) {
+          console.log(err)
+        }
       }
     }
 }
@@ -64,20 +78,31 @@ export default {
       <label for="floatingInput">Adresse mail</label>
     </div>
         <div class="form-floating" v-if="mode == 'create'">
-      <input v-model="name" class="form-control" id="floatingInput" placeholder="name">
+      <input v-model="lastname" class="form-control" id="floatingInput" placeholder="name">
       <label for="floatingInput">Nom</label>
     </div>
     <div class="form-floating" v-if="mode == 'create'">
-      <input v-model="username" class="form-control" id="floatingInput" placeholder="username">
+      <input v-model="firstname" class="form-control" id="floatingInput" placeholder="username">
       <label for="floatingInput">Prenom</label>
     </div>
     <div class="form-floating">
       <input v-model="password" type="password" class="form-control" id="floatingPassword" placeholder="Password">
       <label for="floatingPassword">Mot de passe</label>
     </div>
-      <button class="w-100 btn btn-lg btn-success" type="submit" @click="showHome()" :disabled=!validateFields v-if="mode == 'login'" >Se connecter</button>
-      <button class="w-100 btn btn-lg btn-success" type="submit" @click="showHome()" :disabled=!validateFields v-else >Créer mon compte</button>
-
+    <div class="form-row" v-if="mode == 'login' && $store.state.status == 'error_login'">
+      Adresse ou mot de passe invalide! 
+    </div>
+        <div class="form-row" v-if="mode == 'create' && $store.state.status == 'error_create'">
+      Adresse mail déjà utiliser! 
+    </div>
+      <button class="w-100 btn btn-lg btn-success" type="submit" @click.prevent="connectLogin()" :disabled=!validateFields v-if="mode == 'login'" >
+        <span v-if="$store.state.status == 'loading'">Connexion en cours ...</span>
+        <span v-else>Se connecter</span>
+      </button>
+      <button class="w-100 btn btn-lg btn-success" type="submit" @click.prevent="createAccount()" :disabled=!validateFields v-else >
+      <span v-if="$store.state.status == 'loading'">Création en cours...</span>
+      <span v-else>Créer mon compte</span>
+      </button>
   </form>
 </main>
 </div>
