@@ -1,5 +1,4 @@
 <script>
-
 export default {
     name: "login",
       data() { 
@@ -109,40 +108,33 @@ export default {
 </template>
 
 <style>
-
 html,
 body {
   height: 100%;
 }
-
 body {
   align-items: center;
   padding-bottom: 40px;
   background-color: #f4d4d3!important;
 }
-
 .form-signin {
   width: 100%;
   max-width: 400px;
   margin: auto;
 }
-
 .form-signin .form-floating:focus-within {
   z-index: 2;
 }
-
 .form-signin input[type="email"] {
   margin-bottom: -1px;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
 }
-
 .form-signin input[type="password"] {
   margin-bottom: 10px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
-
 .bd-placeholder-img {
   font-size: 1.125rem;
   text-anchor: middle;
@@ -150,15 +142,12 @@ body {
   -moz-user-select: none;
   user-select: none;
 }
-
 .btn-lg {
   margin: 5px 0 5px 0;
 }
-
 form img{
   margin-bottom: 50px;
 }
-
 form h1{
   margin: 50px;
 }
@@ -168,5 +157,4 @@ form h1{
     font-size: 3.5rem;
   }
 }
-
   </style>

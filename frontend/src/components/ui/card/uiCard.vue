@@ -1,6 +1,7 @@
 <script>
 import comments from "./uiComments.vue"
 import avatar from "../uiAvatar.vue"
+
 export default {
     name: "card",
     data() {
@@ -10,7 +11,7 @@ export default {
             username: "Jean",
             name: "Dupont",
             image: "https://picsum.photos/400/200",
-            postMessage: "Reunion à 16h !" ,     
+            postMessage: "Reunion à 16h ! ",     
         },{
             id: "2",
             username: "Michel",
