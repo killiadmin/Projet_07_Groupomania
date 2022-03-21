@@ -1,13 +1,14 @@
 <script>
+import axios from "axios";
+
 export default {
     name: "login",
       data() { 
         return {
           mode: "login",
           email:'',
-          username:'',
-          name:'',
           password:'',
+          error:"",
         }
       },
     computed: {
@@ -35,28 +36,33 @@ export default {
         this.mode = "login";
       },
       connectLogin(){
-        const self = this;
-        this.$store.dispatch('login', {
-          email: this.email,
-          password: this.password
-        }).then(function (){
-          self.$router.push('/home');
-        }),function (err) {
-          console.log(err)
-        }
+        axios
+        .post("http://localhost:5000/api/users/login", {
+          email: document.getElementById("email").value,
+          password: document.getElementById("password").value,
+        })
+        .then((response) => {
+          localStorage.setItem("userId", response.data.userId);
+          localStorage.setItem("token", response.data.token);
+          localStorage.setItem("admin", response.data.admin);
+          this.$router.push("/home");
+        })
+        .catch(() => (this.error = "Votre adresse email ou votre password est invalide!"))
       },
       createAccount() {
-        const self = this;
-        this.$store.dispatch('createAccount', {
-          email: this.email,
-          lastname: this.lastname,
-          firstname: this.firstname,
-          password: this.password
-        }).then(function (){
-          self.connectLogin();
-        }),function (err) {
-          console.log(err)
-        }
+        axios.post("http://localhost:5000/api/users/signup",{
+          firstname: document.getElementById("firstname").value,
+          lastname: document.getElementById("lastname").value,
+          email: document.getElementById("email").value,
+          password: document.getElementById("password").value,
+        })
+        .then((response) => {
+          localStorage.setItem("userId", response.data.userId);
+          localStorage.setItem("token", response.data.token);
+          localStorage.setItem("admin", response.data.admin);
+          this.$router.push('/home');
+        })
+        .catch(() => this.error = "Le compte n'a pas pu être crée!")
       }
     }
 }
@@ -73,34 +79,29 @@ export default {
     <button class="w-100 btn btn-lg btn-warning" type="submit" v-if="mode == 'login'" @click.prevent="switchToCreateAccount()">Créer un compte</button>
     <button class="w-100 btn btn-lg btn-light" type="submit" v-else @click.prevent="switchToLogin()">Connexion</button>
     <div class="form-floating">
-      <input v-model="email" type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+      <input v-model="email" type="email" class="form-control" id="email" placeholder="name@example.com">
       <label for="floatingInput">Adresse mail</label>
     </div>
         <div class="form-floating" v-if="mode == 'create'">
-      <input v-model="lastname" class="form-control" id="floatingInput" placeholder="name">
+      <input v-model="lastname" class="form-control" id="lastname" placeholder="name">
       <label for="floatingInput">Nom</label>
     </div>
     <div class="form-floating" v-if="mode == 'create'">
-      <input v-model="firstname" class="form-control" id="floatingInput" placeholder="username">
+      <input v-model="firstname" class="form-control" id="firstname" placeholder="username">
       <label for="floatingInput">Prenom</label>
     </div>
     <div class="form-floating">
-      <input v-model="password" type="password" class="form-control" id="floatingPassword" placeholder="Password">
+      <input v-model="password" type="password" class="form-control" id="password" placeholder="Password">
       <label for="floatingPassword">Mot de passe</label>
     </div>
-    <div class="form-row" v-if="mode == 'login' && $store.state.status == 'error_login'">
-      Adresse ou mot de passe invalide! 
-    </div>
-        <div class="form-row" v-if="mode == 'create' && $store.state.status == 'error_create'">
-      Adresse mail déjà utiliser! 
+    <div class="form-row" v-if="error">
+      {{ error }} 
     </div>
       <button class="w-100 btn btn-lg btn-success" type="submit" @click.prevent="connectLogin()" :disabled=!validateFields v-if="mode == 'login'" >
-        <span v-if="$store.state.status == 'loading'">Connexion en cours ...</span>
-        <span v-else>Se connecter</span>
+        <span>Se connecter</span>
       </button>
       <button class="w-100 btn btn-lg btn-success" type="submit" @click.prevent="createAccount()" :disabled=!validateFields v-else >
-      <span v-if="$store.state.status == 'loading'">Création en cours...</span>
-      <span v-else>Créer mon compte</span>
+      <span>Créer mon compte</span>
       </button>
   </form>
 </main>
@@ -116,6 +117,7 @@ body {
   align-items: center;
   padding-bottom: 40px;
   background-color: #f4d4d3!important;
+  min-width: 385px;
 }
 .form-signin {
   width: 100%;
@@ -157,4 +159,10 @@ form h1{
     font-size: 3.5rem;
   }
 }
-  </style>
+
+@media (max-width: 600px){
+  body{
+    padding: 0 10px 0 20px;
+  }
+}
+</style>

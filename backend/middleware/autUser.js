@@ -3,15 +3,15 @@ const jsonWebToken = require("jsonwebtoken")
 async function AuthUser(req, res, next) {
     try {
     const headersToken = req.header("Authorization");
-    const tokenJwt = headersToken.split(" ")[1];
-    const decodedToken = jsonWebToken.verify(tokenJwt, process.env.PASSWORD_TOKEN);
+    const token = headersToken.split(" ")[1];
+    const decodedToken = jsonWebToken.verify(token, process.env.PASSWORD_TOKEN);
     const userId = decodedToken.userId
     
     if (headersToken == null) {
         return res.status(403).send({ message: "Le token n'est pas valide" });
     }
 
-    if (tokenJwt == null) {
+    if (token == null) {
         return res.status(403).send({ message: "Le token n'est pas valide"});
     }
 
@@ -19,7 +19,7 @@ async function AuthUser(req, res, next) {
         res.locals.decodedToken = decodedToken
         next();
     } else {
-        throw "User Id n'est pas pas valable!";
+        throw "User Id n'est pas valable!";
     }
 }
 catch (err) {

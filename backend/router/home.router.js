@@ -16,14 +16,14 @@ productsRouter.put("/users/:id",AuthUser, uploadImage.single("image"), modifyPro
 productsRouter.delete("/users/:id",AuthUser, deleteUser);
 
 //Route Post
-productsRouter.get('/', AuthUser, readPosts);
-productsRouter.get('/:id', AuthUser, readPost);
-productsRouter.post('/',AuthUser, createNewPost);
-productsRouter.put('/:id',AuthUser, modifyPostProfil);
-productsRouter.delete('/:id',AuthUser, deletePost);
+productsRouter.get('/posts/', AuthUser, readPosts);
+productsRouter.get('/posts/:id', AuthUser, readPost);
+productsRouter.post('/posts/',AuthUser, uploadImage.single("image"), createNewPost);
+productsRouter.put('/posts/:id',AuthUser, uploadImage.single("image"), modifyPostProfil);
+productsRouter.delete('/posts/:id',AuthUser, deletePost);
 
 //Route Comment
-productsRouter.get('/comments',AuthUser, readComments); 
+productsRouter.get('/comments/',AuthUser, readComments); 
 productsRouter.post('/comments/:id',AuthUser, createComment);
 productsRouter.delete('/comments/:id',AuthUser, deleteComment);
 module.exports = { productsRouter };

@@ -63,6 +63,7 @@ async function createNewPost(req, res) {
     
     const { body } = req.body;
     const { userId } = res.locals.decodedToken;
+    console.log(body, userId);
 
     await models.User.findOne({
       where: { id: userId },
@@ -100,7 +101,7 @@ async function modifyPostProfil(req, res) {
     } else {
       req.file = null;
     }
-    if (userId === post.userId) {
+    if (userId === post.userId || userId.admin === true) {
       await models.Post.update(
         {
           body: body ? body : post.message,
@@ -138,7 +139,7 @@ async function deletePost(req, res) {
     },
   });
 
-  if (userId === post.userId) {
+  if (userId === post.userId || userId === 1) {
     if (post.imageUrl) {
       const filename = post.imageUrl.split("/images/")[1];
       fs.unlink(`images/${filename}`, () => {

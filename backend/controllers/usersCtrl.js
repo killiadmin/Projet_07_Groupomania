@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const models = require("../models");
 const passwordValidator = require("password-validator");
-const fs = require("fs");
+// const fs = require("fs");
 
 const schemaPassValid = new passwordValidator();
 schemaPassValid.is().min(8).is().max(50).has().digits(2).has().not().spaces();
@@ -18,41 +18,30 @@ function signup(req, res) {
   const password = req.body.password;
 
   //Controle des params du model
-  if (
-    firstname == null ||
-    lastname == null ||
-    email == null ||
-    password == null
-  ) {
-    return res
-      .status(400)
-      .json({ error: "Les parametres des utilisateurs sont obsoletes!" });
-  }
+  if (firstname == null || lastname == null || email == null || password == null) {
+    return res.status(400).json({ 
+      error: "Les parametres des utilisateurs sont obsoletes!" });
+  };
 
   //Controle de la saisie du Nom et Prenom
-  if (
-    lastname.lenght >= 20 ||
-    lastname.length <= 4 ||
-    firstname.lenght >= 20 ||
-    firstname.length <= 4
-  ) {
+  if (lastname.lenght >= 20 || lastname.length <= 2 || firstname.lenght >= 20 || firstname.length <= 2) {
     return res.status(400).json({
       error: "Votre prénom et nom est compris entre 3 et 20 caracteres!",
     });
-  }
+  };
 
   //Controle de la saisie du mail
   if (!email_regex.test(email)) {
-    return res.status(400).json({ error: "Votre mail n'est pas conforme!" });
+    return res.status(400).json({ 
+      error: "Votre mail n'est pas conforme!" });
   }
 
   //Controle password-validator
   if (!schemaPassValid.validate(password)) {
     return res.status(401).json({
-      error:
-        "Sécurité du mot de passe faible. Il doit contenir au moins 8 caractère, des majuscules et deux chiffres!",
+      error: "Sécurité du mot de passe faible. Il doit contenir au moins 8 caractère, des majuscules et deux chiffres!",
     });
-  }
+  };
 
   models.User.findOne({
     attribute: ["email"],
@@ -67,11 +56,21 @@ function signup(req, res) {
             lastname: lastname,
             email: email,
             password: bcryptedPassword,
-            isAdmin: 0,
+            admin: 0,
           })
             .then(function (newUser) {
               return res.status(200).json({
                 userId: newUser.id,
+                admin: newUser.admin,
+                token: jwt.sign({
+                  userId: newUser.id,
+                  admin: newUser.admin,
+                },
+                process.env.PASSWORD_TOKEN,
+                {
+                  expiresIn: "48h",
+                }
+                )
               });
             })
             .catch(function (err) {
@@ -101,15 +100,13 @@ async function login(req, res) {
       where: { email: email },
     });
     if (!user) {
-      return res
-        .status(401)
-        .json({ error: "Les parametres des utilisateurs sont obsoletes!" });
+      return res.status(401).json({ error: "Les parametres des utilisateurs sont obsoletes!" });
     } else {
       const hash = await bcrypt.compare(password, user.password);
       if (!hash) {
         return res.status(401).send({ error: "Le mot de passe est invalide!" });
       } else {
-        const userToken = jwt.sign(
+        const token = jwt.sign(
           { userId: user.id },
           process.env.PASSWORD_TOKEN,
           {
@@ -117,8 +114,9 @@ async function login(req, res) {
           }
         );
         res.status(200).send({
-          id: user.id,
-          userToken,
+          userId: user.id,
+          token: token,
+          admin : user.admin
         });
       }
     }
@@ -190,29 +188,19 @@ async function modifyProfil(req, res) {
 
 //DELETE
 
-async function deleteUser(req, res) {
+async function deleteUser(req, res, next) {
   const id = req.params.id;
-  const user = await models.User.findOne({
-    where: {
-      id: id,
-    },
-  });
-  try {
-    const filename = user.imageUrl.split("/images/")[1];
-    fs.unlink(`images/${filename}`, () => {
-      models.User.destroy({
-        where: {
-          id: id,
-        },
-      });
-    });
-    return res.status(200).json({ message: "Le compte a bien été supprimé" });
-  } catch (err) {
-    console.error(err);
-    return res
-      .status(500)
-      .send({ err: "Il y a eu une erreur lors de la suppression du compte!" });
-  }
+  models.User.findOne({ where: { id: id } })
+    .then((user) => {
+      models.User.destroy({ where: { id: id } })
+      models.Post.destroy({ where: { userId: id } })
+      models.Comment.destroy({ where: { userId: id } })
+    .then(() => res.status(200).json({ message: 'Le compte a bien été supprimé!' }))
+    .catch(error => res.status(400).json({ error }));
+  })
+  .catch (error => res.status(500).json({ error }));
 }
+    // const filename = user.imageUrl.split("/images/")[1];
+    // fs.unlink(`images/${filename}`, () => {
 
 module.exports = { signup, login, getUser, getUsers, modifyProfil, deleteUser };

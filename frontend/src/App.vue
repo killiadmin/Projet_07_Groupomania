@@ -1,6 +1,6 @@
 <script>
 import LoginVue from "./pages/pageLogin.vue"
-import Header from "./components/layout/layoutHeader.vue"
+import Header from "./components/layoutHeader.vue"
 
 export default {
   name: "app",

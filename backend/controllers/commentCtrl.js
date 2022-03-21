@@ -1,6 +1,7 @@
 const models = require("../models");
 
 //Route GET
+
 async function readComments(req, res) {
   try {
     const comments = await models.Comment.findAll({
@@ -13,6 +14,7 @@ async function readComments(req, res) {
         },
       ],
     });
+    console.log(comments)
     return res.status(200).json({ comments });
   } catch {
     console.error(error);
