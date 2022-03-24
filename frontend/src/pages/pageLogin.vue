@@ -47,6 +47,11 @@ export default {
           localStorage.setItem("admin", response.data.admin);
           this.$router.push("/home");
         })
+        .then(() => {
+          setTimeout(function() {
+            window.location.reload();
+          } , 200);
+        })
         .catch(() => (this.error = "Votre adresse email ou votre password est invalide!"))
       },
       createAccount() {
@@ -62,14 +67,19 @@ export default {
           localStorage.setItem("admin", response.data.admin);
           this.$router.push('/home');
         })
-        .catch(() => this.error = "Le compte n'a pas pu être crée!")
+        .then(() => {
+          setTimeout(function() {
+            window.location.reload();
+          } , 200);
+        })
+        .catch(() => this.error = "Le compte n'a pas pu être crée! Veuillez renseigner un mot de passe de min. 8 caractères et deux chiffres!")
       }
     }
 }
 </script>
 
 <template>
-<div>
+<div class="p-2">
   <main class="form-signin">
   <form>
     <h1 class="text-center">Bienvenue sur le réseau social :</h1>
@@ -157,12 +167,6 @@ form h1{
 @media (min-width: 768px) {
   .bd-placeholder-img-lg {
     font-size: 3.5rem;
-  }
-}
-
-@media (max-width: 600px){
-  body{
-    padding: 0 10px 0 20px;
   }
 }
 </style>

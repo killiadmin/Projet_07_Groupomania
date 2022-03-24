@@ -6,23 +6,28 @@ const { productsRouter } = require("./router/home.router");
 const path = require("path");
 
 require('./config/db');
-require('dotenv').config({path: './config/.env'})
+require('dotenv').config({path: './config/.env'});
 
-//cors
+//Cors
 const cors = require('cors');
-app.use(cors())
+app.use(cors());
 
-// Body-parser
+//Helmet
+const helmet =require("helmet");
+app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }));
+
+//Body-parser
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-//router
+//Router
 app.use('/api/', authRouter);
 app.use('/api/', productsRouter);
 
 //Path
 app.use("/images", express.static(path.join(__dirname, "images")));
 
+//Listen_PORT
 app.listen(process.env.PORT, () => {
     console.log(`listening on port ${process.env.PORT}`);
 });

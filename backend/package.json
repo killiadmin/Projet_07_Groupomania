@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index"
+    "start": "nodemon index",
+    "doc": "jsdoc -c jsdoc.json"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +17,7 @@
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "fs": "^0.0.1-security",
+    "helmet": "^5.0.2",
     "jsonwebtoken": "^8.5.1",
     "multer": "^1.4.4",
     "mysql": "^2.18.1",
@@ -24,5 +26,8 @@
     "password-validator": "^5.2.1",
     "path": "^0.12.7",
     "sequelize": "^6.17.0"
+  },
+  "devDependencies": {
+    "jsdoc": "^3.6.10"
   }
 }

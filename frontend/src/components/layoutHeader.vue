@@ -11,11 +11,13 @@ export default {
       logOut(){
         const userId = localStorage.getItem('userId')
         if (userId) {
-          localStorage.clear();
+          localStorage.clear();  
         this.$router.push('/');
+        window.location.reload();
         } else {
           window.alert("Vous n'etes pas connecté !")
         }
+
       },
       controlUserIdProfil(){
         const userId = localStorage.getItem('userId')
@@ -42,19 +44,20 @@ export default {
         }
       }
     }
+
 }
 </script>
 
 <template>
 <header>
-    <div class="px-3 py-2 border-bottom mb-3">
+    <div class="px-3 py-2 border-bottom mb-3" >
       <div class="container d-flex flex-wrap">
         <img class="d-flex" src="../../../assets/logo_monochrome_white.png" alt="" width="400" height="50">
-        <div class="text-end d-flex align-items-center">
-          <router-link to="/allUsers"><button type="button" class="btn btn-light text-dark me-2" v-if="userId && admin === 'true'" @click.prevent="controlAllUsers()">Tout les utilisateurs</button></router-link>
-          <router-link to="/profil"><button type="button" class="btn btn-light text-dark me-2" v-if="userId" @click.prevent="controlUserIdProfil()">Mon profil</button></router-link>
-          <router-link to="/home"><button type="button" class="btn btn-secondary text-light me-2" v-if="userId" @click.prevent="controlUserIdHome()">Home</button></router-link>
-          <router-link to="/"><button type="button" class="btn btn-warning text-dark me-2" v-if="userId" @click="logOut()">Se déconnecter</button></router-link>
+        <div class="text-end d-flex align-items-center" v-if="userId">
+          <router-link to="/allUsers"><button type="button" class="btn btn-light text-dark me-2" v-if="admin === 'true' " @click.prevent="controlAllUsers()">Tout les utilisateurs</button></router-link>
+          <router-link to="/profil"><button type="button" class="btn btn-light text-dark me-2"  @click.prevent="controlUserIdProfil()">Mon profil</button></router-link>
+          <router-link to="/home"><button type="button" class="btn btn-secondary text-light me-2" @click.prevent="controlUserIdHome()">Home</button></router-link>
+          <router-link to="/"><button type="button" class="btn btn-warning text-dark me-2" v-on:click="logOut()">Se déconnecter</button></router-link>
         </div>
       </div>
     </div>

@@ -30,8 +30,9 @@ async function createComment(req, res) {
     const { id } = req.params;
     const { body } = req.body;
     const { userId } = res.locals.decodedToken;
+
     await models.User.findOne({
-      where: { id: id },
+      where: { id: userId },
     });
     
     models.Comment.create({
@@ -56,14 +57,14 @@ async function deleteComment(req, res) {
   
   const comment = await models.Comment.findOne({
     where: {
-      postId: id,
+      id: id,
     },
   });
 
-  if (userId === comment.userId) {
+  if (userId === comment.userId || userId === 1) { 
     models.Comment.destroy({
       where: {
-        postId: id,
+        id: id,
       },
     });
     return res

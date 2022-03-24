@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const models = require("../models");
 const passwordValidator = require("password-validator");
-// const fs = require("fs");
+const fs = require("fs");
 
 const schemaPassValid = new passwordValidator();
 schemaPassValid.is().min(8).is().max(50).has().digits(2).has().not().spaces();
@@ -158,29 +158,43 @@ async function modifyProfil(req, res) {
         id: id,
       },
     });
+    
     let imageReq = req.file;
-  if (imageReq) {
-      imageReq = `${req.protocol}://${req.get("host")}/images/${
-        req.file.filename
-      }`;
+
+      if (imageReq) {
+        imageReq = `${req.protocol}://${req.get("host")}/images/${ req.file.filename }`;
     } else {
       imageReq = user.imageUrl;
     }
-    await models.User.update(
-      {
-        imageUrl: imageReq,
-        firstname: req.body.firstname ? req.body.firstname : user.firstname,
-        lastname: req.body.lastname ? req.body.lastname : user.lastname,
-        email: req.body.email ? req.body.email : user.email,
-      },
-      {
-        where: {
-          id: id,
+    if (user.imageUrl != null) {
+      const filename = user.imageUrl.split("/images/")[1];
+        fs.unlink(`images/${filename}`,() => {
+      models.User.update(
+        {
+          imageUrl: imageReq,
         },
-      }
-    );
-    return res.status(200).send({ message: "Modifications enrigistrés" });
-  } catch (error) {
+        {
+          where: {
+            id: id,
+          },
+        }
+      );
+      return res.status(200).send({ message: "Modifications enrigistrés" });
+    }) 
+    } else {
+      await models.User.update(
+        {
+          imageUrl: imageReq,
+        },
+        {
+          where: {
+            id: id,
+          },
+        }
+      );
+      return res.status(200).send({ message: "Modifications enrigistrés" });
+    }
+} catch (error) {
     console.log(error);
     return res.status(500).send({ error: "Erreur serveur" });
   }
@@ -190,17 +204,17 @@ async function modifyProfil(req, res) {
 
 async function deleteUser(req, res, next) {
   const id = req.params.id;
-  models.User.findOne({ where: { id: id } })
-    .then((user) => {
-      models.User.destroy({ where: { id: id } })
-      models.Post.destroy({ where: { userId: id } })
-      models.Comment.destroy({ where: { userId: id } })
-    .then(() => res.status(200).json({ message: 'Le compte a bien été supprimé!' }))
-    .catch(error => res.status(400).json({ error }));
-  })
-  .catch (error => res.status(500).json({ error }));
-}
-    // const filename = user.imageUrl.split("/images/")[1];
-    // fs.unlink(`images/${filename}`, () => {
+  const user = await models.User.findOne({ where: { id: id } });
+  try {
+    const filename = user.imageUrl.split("/images/")[1];
+      fs.unlink(`images/${filename}`,() => {
+      models.User.destroy({ where: { id: id } });
+      models.Post.destroy({ where: { userId: id } });
+      models.Comment.destroy({ where: { userId: id } });
+    return res.status(200).json({ message: "L'utilisateur à bien été supprimé" });
+  })} catch(error){
+     return res.status(500).send({ error: "La suppression de l'utilisateur pose problème!" });
+  };
+};
 
 module.exports = { signup, login, getUser, getUsers, modifyProfil, deleteUser };

@@ -31,6 +31,12 @@
             }
         }
     },
+    
+        beforeMount: function() {
+        if(localStorage.getItem("admin") === 'false' || !localStorage.getItem("userId")){
+            this.$router.push('/');
+        };
+    },
         mounted: function (){
         axios.get("http://localhost:5000/api/users", {
             headers: {

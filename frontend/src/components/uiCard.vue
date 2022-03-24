@@ -1,18 +1,12 @@
 <script>
-import comments from "./uiComments.vue";
-import avatar from "./uiAvatar.vue";
 import axios from "axios";
-import addComments from "./uiAddComments.vue"
-import postCard from "../pages/pagePostCard.vue"
-import moment from "moment"
+import postCard from "../components/uiPostCard.vue";
+import moment from "moment";
 
 
 export default {
     name: "card",
     components: {
-        avatar,
-        comments,
-        addComments,
         postCard
     },
     data() {
@@ -28,7 +22,7 @@ export default {
             body:"",
             post:{},
             posts:[],
-            comment: '',
+            comment: {},
             comments: [],
       };
     },
@@ -51,6 +45,7 @@ export default {
             .then((response) => {
                 let i = this.posts.map((data) => data.id).indexOf(id);
                 this.posts.slice(i, 1);
+                window.location.reload();
                 console.log(response)
             });
             } else {
@@ -74,6 +69,34 @@ export default {
             } else {
                 return;
             }
+        },
+        async postComment(id) {
+            const postId = id
+            const data = {
+                UserId: this.userId,
+                PostId: postId, 
+                body: this.bodyComment }
+
+            if (this.bodyComment != null) {
+                await axios.post(`http://localhost:5000/api/comments/${postId}`, data,  {
+                    headers: {
+                Authorization: "Bearer " + this.token,
+                "Content-Type": "application/json",
+              },
+                })
+                .then((response) => { 
+                    console.log(response)
+                    window.location.reload();
+                })
+                .catch((error) => console.error(error))
+            } else {
+                alert("Vous n'avez rien saisie dans la section commentaire!")
+            }
+        }
+    },
+    beforeMount: function() {
+        if(!localStorage.getItem("userId")){
+            this.$router.push('/');
         }
     },
         mounted: function (){
@@ -120,18 +143,23 @@ export default {
             },
         })
         .then((response) => {
-            this.comments = response.data;
-            console.log(this.comments)
+            this.comments = response.data.comments;
+            console.log(response.data.comments)
         })
         .catch((error) => console.error(error))
         },
 
 }
 
-    
+
 </script>
 
 <template>
+<div class="container__connected">
+    <div>Vous êtes connecté en tant que : 
+        <p class="fw-bold bloc__connected">{{ user.firstname }} {{ user.lastname }}</p>
+    </div>
+</div>
 <div class="container article" v-for="post in posts" v-bind:key="post.id">
     <div class="card m-auto">
         <div class="card-header d-flex fw-bold" >{{ post.User.firstname }} {{ post.User.lastname }}
@@ -141,7 +169,6 @@ export default {
                     <span class="display-date fw-light">Publié le : {{ dateFormat(post.createdAt) }}</span>
                 </div>
             <div class="d-flex">
-                <!-- <a href="#" class="btn btn-light">Modifier</a> -->
                 <a href="#" class="btn btn-danger btn-delete" v-if="user.admin == true || post.User.id == userId " @click.prevent="deletePost(post.id)">Supprimer</a>
                 <a href="#" class="btn btn-danger btn-responsive" v-if="user.admin == true || post.User.id == userId " @click.prevent="deletePost(post.id)">X</a>
             </div>
@@ -151,23 +178,26 @@ export default {
           </div>
       <div class="card-body">
         <p class="card-text border-bottom">{{ post.body }}</p>
-        <div class="container">
-            
+        <div class="container">           
             <div class="d-flex comment" v-for="comment in comments" v-bind:key="comment.id">
-         {{ post.id }} {{ comment }}
-        <div v-if="post.id == comment.postId" class="user d-flex align-items-center">
-            
-            <img :src=post.User.imageUrl class="rounded-circle" alt="Avatar"/>
-            <div class="d-flex flex-column">
-                    <p class="fw-bold">{{  }} {{ post.User.firstname }}: </p>
+        <div v-if="post.id === comment.postId" class="user d-flex align-items-center">    
+            <div class="d-flex flex-column" >
+                <div class="bloc__users" v-for="user in users" v-bind:key="user.id">
+                <img v-if="user.id === comment.User.id && user.imageUrl !== null" :src=user.imageUrl class="rounded-circle" alt="Avatar"/>
+                    <p class="fw-bold" v-if="user.id === comment.userId">{{ user.firstname }} {{ user.lastname }} :</p>                    
+                </div>
+
                 <p>{{ comment.body }}</p>
             </div>
-                <a href="#" class="btn btn-light" v-if="comment.userId == user.id || user.admin == 'true'" @click.prevent="deleteComment(comment.id)">Supprimer</a>
+                <a href="#" class="btn btn-danger btn-delete" v-if="comment.userId == user.id || user.id == 1" @click.prevent="deleteComment(comment.id)">Supprimer</a>
+                <a href="#" class="btn btn-danger btn-responsive" v-if="comment.userId == user.id || user.id == 1" @click.prevent="deleteComment(comment.id)">X</a>
+                {{ dateFormat(comment.createdAt) }}
         </div>
     </div>
         </div>
         <div class="d-flex">
-            <addComments></addComments>
+            <input id="bodyComment" v-model="bodyComment" type="text" class="form-control" placeholder="Commentaire"/>
+            <a href="#" class="btn btn-warning" @click.prevent="postComment(post.id)">Envoyer</a>
         </div>
       </div>
     </div>
@@ -198,6 +228,26 @@ input{
 
 .btn-responsive{
     display: none
+}
+
+.user{
+    gap: 15px;
+}
+
+.rounded-circle{
+    width: 50px;
+}
+
+.container__connected{
+    padding: 10px;
+    color: black;
+}
+
+.bloc__connected{
+    background-color:#198754;
+    color: white;
+    width:20%;
+    text-align: center
 }
 
 @media (max-width: 767px) {

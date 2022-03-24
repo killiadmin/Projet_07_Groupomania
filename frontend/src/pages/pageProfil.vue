@@ -1,18 +1,8 @@
 <script>
 import axios from "axios";
-import avatar from "../components/uiAvatar.vue";
 
 export default{
     name: "pageProfil",
-    // mounted: function() {
-    //     if(this.$store.state.user.userId == -1){
-    //         this.$router.push('/');
-    //         return;
-    //     }
-    //     console.log(this.$store.state.user.id)
-    //     this.$store.dispatch('getUserInfos');
-        
-    // },
     data() {
         return {
             user: {
@@ -29,6 +19,12 @@ export default{
             mode: "cancelModify",
         };
     },
+    
+    beforeMount: function() {
+        if(!localStorage.getItem("userId")){
+            this.$router.push('/');
+        }
+    },
 
     mounted: function() {
         axios
@@ -42,9 +38,6 @@ export default{
             this.user = response.data;
             console.log(this.user)
             });
-    },
-        components: {
-        avatar
     },
         methods: {
             modifyAccount() {
@@ -70,32 +63,43 @@ export default{
                         localStorage.clear();
                         this.$router.push("/");
                     })
+                    .then(() => {
+                         setTimeout(function() {
+                         window.location.reload();
+                    } , 200);
+                })
                 } else {
                     return;
                 }
             },
                 filePictureUpload(){
             this.image = this.$refs.image.files[0];
-            // this.imageUrl = URL.createObjectURL(this.image);
             },
 
             async updatePicture() {
                 const formData = new FormData();
                 formData.append("userId", parseInt(localStorage.getItem("userId")));
                 formData.append("image", this.image);
-                // formData.append("imageUrl", this.imageUrl);
+                if (this.image != null) {
+                    await axios
+                        .put(`http://localhost:5000/api/users/${this.userId}`, formData, {
+                            headers: {
+                                Authorization: "Bearer " + this.token,
+                                    "Content-Type": "multipart/form-data",
+                            },
+                        })
+                        .then((response) => {
+                        this.user = response.data.user;
+                        this.image = response.data.image;
+                        })
+                        .catch((error) => {
+                            console.error(error)
+                            alert("Un problème est survenue lors de votre modification de votre avatar!")
+                        })    
+                } else {
+                    alert("Vous n'avez fournit aucune image pour votre avatar! Veuillez cliqué sur le boutton 'Choisir un fichier' !")
+                }
 
-                await axios
-                    .put(`http://localhost:5000/api/users/${this.userId}`, formData, {
-                        headers: {
-                            Authorization: "Bearer " + this.token,
-                                "Content-Type": "multipart/form-data",
-                        },
-                    })
-                    .then((response) => {
-                    this.user = response.data.user;
-                    this.image = response.data.image;
-            });
     }
 }}
 </script>

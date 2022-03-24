@@ -11,6 +11,15 @@
                 error: '',
             };
         },
+        computed: {
+            validatePosts() {
+                if (this.body != ""){
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        },
         methods: {
             selectFile() {
                 this.image = this.$refs.image.files[0];
@@ -46,9 +55,8 @@
       <label  for="floatingTextarea" >Votre commentaire</label>
     </div>
     <div class="d-flex">
-        <!-- <label for ="image" ref= "image" class="btn btn-secondary mt-1" >Ajouter une image</label> -->
         <input id="image" class="imageUpload" name="image" ref="image" type="file" accept=".jpg, .png, .gif" @change="selectFile()"/>
-        <button type="button" class="btn btn-warning btn-envoyer mt-1 ms-auto" @click="postCard()">Envoyer</button>
+        <button type="button" class="btn btn-warning btn-envoyer mt-1 ms-auto" :disabled=!validatePosts @click="postCard()">Envoyer</button>
     </div>
     <div v-if="error" class="alert alert-danger" role="altert" id="msgError">
       {{ error }}
