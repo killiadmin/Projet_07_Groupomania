@@ -24,6 +24,7 @@ export default {
             posts:[],
             comment: {},
             comments: [],
+            
       };
     },
     methods: {
@@ -32,6 +33,9 @@ export default {
                 return moment(date).format('DD/MM/YYYY à hh:mm a')
             }
         },
+        /**
+         * Fonction DELETE executer avec axios, qui fait un appel backend pour supprimer un post après confirmation de l'utilisateur
+         */
         async deletePost(id) {
             let confirmDeletepost = confirm("Voulez-vous vraiment supprimer cette publication?");
 
@@ -43,15 +47,17 @@ export default {
                      },
             })
             .then((response) => {
-                let i = this.posts.map((data) => data.id).indexOf(id);
-                this.posts.slice(i, 1);
                 window.location.reload();
                 console.log(response)
-            });
+            })
+            .catch((error) => console.error(error))
             } else {
                 return;
             }
         },
+        /**
+         * Fonction DELETE executer avec axios, qui fait un appel backend pour supprimer un commentaire après confirmation de l'utilisateur
+         */
         async deleteComment(id) {
             let confirmDeleteComment = confirm("Voulez-vous vraiment supprimer ce commentaire?");
             if (confirmDeleteComment == true) {
@@ -70,6 +76,9 @@ export default {
                 return;
             }
         },
+        /**
+         * Fonction POST executer avec axios, qui fait un appel backend pour poster un commentaire
+         */
         async postComment(id) {
             const postId = id
             const data = {
@@ -99,6 +108,9 @@ export default {
             this.$router.push('/');
         }
     },
+    /**
+     * Fonction GET executer avec axios, qui fait un appel backend pour accéder aux données d'utilisateurs
+     */
         mounted: function (){
         axios.get("http://localhost:5000/api/users", {
             headers: {
@@ -112,6 +124,9 @@ export default {
         })
         .catch((error) => console.error(error))
 
+        /**
+         * Fonction GET executer avec axios, qui fait un appel backend pour accéder aux données d'un utilisateur
+         */
         axios
         .get(`http://localhost:5000/api/users/${this.userId}`, {
             headers: {
@@ -122,7 +137,12 @@ export default {
         .then((response) => {
             this.user = response.data;
             console.log(this.user)
-            });
+            })
+        .catch((error) => console.error(error))
+
+        /**
+         * Fonction GET executer avec axios, qui fait un appel backend pour accéder à la BDD et afficher les posts
+         */
 
         axios.get("http://localhost:5000/api/posts", {
             headers: {
@@ -136,6 +156,9 @@ export default {
         })
         .catch((error) => console.error(error))
 
+        /**
+         * Fonction GET executer avec axios, qui fait un appel backend pour accéder aux commentaires et afficher les commentaires
+         */
         axios.get("http://localhost:5000/api/comments", {
             headers : {
                 Authorization: "Bearer " + this.token,

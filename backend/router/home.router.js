@@ -6,9 +6,6 @@ const { readPosts, readPost, createNewPost, modifyPostProfil, deletePost } = req
 const { readComments, createComment, deleteComment } = require("../controllers/commentCtrl");
 const { uploadImage } = require("../middleware/multer");
 
-
-// productsRouter.use(AuthUser)
-
 //Route Users
 productsRouter.get("/users/", AuthUser, getUsers);
 productsRouter.get("/users/:id" ,AuthUser, getUser);

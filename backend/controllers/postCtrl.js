@@ -1,7 +1,10 @@
 const models = require("../models");
 const fs = require("fs");
 
-//Route GET All
+/**
+ * Fonction GET qui permet de lire tout les posts stockés dans la BDD 
+ * et de checker quel utilisateur est assigné à tel post
+ */
 
 async function readPosts(req, res) {
   try {
@@ -23,7 +26,10 @@ async function readPosts(req, res) {
   }
 }
 
-//Route GET One
+/**
+ * Fonction GET qui permet de lire un post en particulier stocké dans la BDD 
+ * et de checker quel utilisateur est assigné à ce post
+*/
 
 async function readPost(req, res) {
   try {
@@ -48,7 +54,11 @@ async function readPost(req, res) {
   }
 }
 
-// Route POST
+/**
+ * Fonction POST qui nous permet de crée un nouveau post, si une image est fournit elle va crée un lien vers cette image stockés
+ * dans le dossier 'images' sinon l'image sera égale à null. Ensuite l'id de l'utilisateur sera assigné à ce post,
+ * et le body du post représente le corp du message donnée par l'utilisateur.
+*/
 
 async function createNewPost(req, res) {
   try {
@@ -82,7 +92,10 @@ async function createNewPost(req, res) {
   }
 }
 
-//Route PUT
+/**
+ * Fonction PUT qui n'est pas exploiter dans le front, qui permet de modifier le contenu d'un post donc son body déjà existant 
+ * et son image.  
+ */
 
 async function modifyPostProfil(req, res) {
   try {
@@ -127,7 +140,10 @@ async function modifyPostProfil(req, res) {
   }
 }
 
-//Route DELETE
+/**
+ * Fonction DELETE qui permet de supprimer le body d'un post. Si il y a une image dans ce post, elle sera supprimer du dossier 'images'.
+ * Un utilisateur pourra supprimer son post ainsi qu'un admin ayant le status.
+*/
 
 async function deletePost(req, res) {
   const { userId } = await res.locals.decodedToken;

@@ -1,5 +1,10 @@
 const jsonWebToken = require("jsonwebtoken")
 
+/**
+ * Cette fonction va nous permettre d'authentifier l'utilisateur avec 'jsonwebtoken', une fois l'utilisateur vérifier,
+ * il pourra se crée un compte, se connecter et accéder au contenu du réseau.
+ */
+
 async function AuthUser(req, res, next) {
     try {
     const headersToken = req.header("Authorization");

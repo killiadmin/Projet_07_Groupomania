@@ -12,6 +12,9 @@ export default {
         }
       },
     computed: {
+      /**
+       * Le bouton de création de compte ou se connecter est désactiver si aucun caractère n'est saisie
+       */
       validateFields() {
         if (this.mode == "create") {
           if (this.email != "" && this.password != "" && this.lastname != "" && this.firstname != "") {
@@ -35,6 +38,9 @@ export default {
       switchToLogin() {
         this.mode = "login";
       },
+      /**
+       * Fonction POST executer avec axios, qui fait un appel backend pour se connecter avec un utilisateur déjà existant dans la BDD
+       */
       connectLogin(){
         axios
         .post("http://localhost:5000/api/users/login", {
@@ -54,6 +60,9 @@ export default {
         })
         .catch(() => (this.error = "Votre adresse email ou votre password est invalide!"))
       },
+      /**
+       * Fonction POST executer avec axios, qui fait un appel backend pour se créer un compte et envoyer les infos founit au backend
+       */
       createAccount() {
         axios.post("http://localhost:5000/api/users/signup",{
           firstname: document.getElementById("firstname").value,

@@ -19,13 +19,17 @@ export default{
             mode: "cancelModify",
         };
     },
-    
+    /**
+     * Fonction qui permet de rediriger l'utilisateur à l'acceuil si il ne s'est pas connecté ou créer de compte
+     */
     beforeMount: function() {
         if(!localStorage.getItem("userId")){
             this.$router.push('/');
         }
     },
-
+    /**
+     * Fonction GET executer avec axios, qui fait un appel backend pour afficher tout les utilisateurs 
+     */
     mounted: function() {
         axios
         .get(`http://localhost:5000/api/users/${this.userId}`, {
@@ -37,7 +41,8 @@ export default{
         .then((response) => {
             this.user = response.data;
             console.log(this.user)
-            });
+            })
+        .catch((error) => console.error(error))
     },
         methods: {
             modifyAccount() {
@@ -46,9 +51,9 @@ export default{
             backModifyAccount() {
                 this.mode = "cancelModify";
             },
-            modifyProfil() {
-                console.log(this.username, this.lastname, this.email, this.password)
-            },
+            /**
+             * Fonction DELETE executer avec axios, qui fait un appel backend pour supprimer un utilisateur
+             */
             async deleteProfil() {
                 let confirmDeleteUser = confirm("Voulez vous vraiment supprimer votre compte ?")
 
@@ -66,7 +71,8 @@ export default{
                     .then(() => {
                          setTimeout(function() {
                          window.location.reload();
-                    } , 200);
+                    } , 200)
+                    .catch((error) => console.error(error))
                 })
                 } else {
                     return;
@@ -75,7 +81,9 @@ export default{
                 filePictureUpload(){
             this.image = this.$refs.image.files[0];
             },
-
+            /**
+             * Fonction PUT executer avec axios, qui fait un appel backend pour mettre à jour l'avatar d'un utilisateur
+             */
             async updatePicture() {
                 const formData = new FormData();
                 formData.append("userId", parseInt(localStorage.getItem("userId")));
@@ -138,14 +146,8 @@ export default{
             </div>
             <div class="form-floating">
             <h6 class="mb-0" v-if="mode == 'cancelModify'">Mot de passe : **********</h6>
-                <!-- <div class="form-floating" v-else>
-                    <input v-model="password" type="password" class="form-control" id="floatingInput" placeholder="password">
-                    <label for="floatingInput">Password</label>
-                </div> -->
             </div>
       </div>
-          <!-- <button class="w-100 btn btn-lg btn-warning" type="submit" v-if="mode == 'cancelModify'" @click.prevent="modifyAccount()">Modifier le profil</button> -->
-          <!-- <button class="w-100 btn btn-lg btn-warning" type="submit" v-else @click.prevent="backModifyAccount()">Ne pas modifier</button> -->
           <button class="w-100 btn btn-lg btn-danger" type="submit"  v-if="mode == 'cancelModify'" @click.prevent="deleteProfil()">Supprimer le profil</button>
           <button class="w-100 btn btn-lg btn-success" type="submit" @click="updatePicture()">Modifier mon image</button>
     </form>

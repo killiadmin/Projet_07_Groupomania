@@ -9,7 +9,12 @@ schemaPassValid.is().min(8).is().max(50).has().digits(2).has().not().spaces();
 
 const email_regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
 
-//Routes SIGNUP
+/**
+ * Route SIGNUP : Après vérification de la saisie des caractères données : 
+ * (Nombre de caractère du nom et prénom, synthaxe de l'email, saisie d'un mot de passe solide). 
+ * Cette fonction va crée un nouvel utilisateur, elle va hashé le mdp avec bcrypt avant de fournir les informations à BDD,
+ * ensuite qui va crée un nouveau token d'authentification et finir par envoyer les infos.
+ */
 
 function signup(req, res) {
   const firstname = req.body.firstname;
@@ -90,7 +95,10 @@ function signup(req, res) {
     });
 }
 
-// route LOGIN
+/**
+ * Route LOGIN : Cette fonction permet de nous connecter, check de l'utilisateur dans la BDD si il existe, 
+ * puis bcrypt check le mdp avec méthodes compare. Après ces vérifs, un token sera assigné à l'utilisateur.  
+ */
 
 async function login(req, res) {
   const email = req.body.email;
@@ -125,6 +133,10 @@ async function login(req, res) {
   }
 }
 
+/**
+ * Fonction qui permet d'utiliser une méthode GET pour checker tout les utilisateurs stockés dans la BDD
+ */
+
 function getUsers(req, res) {
   models.User.findAll()
     .then((users) => {
@@ -135,6 +147,11 @@ function getUsers(req, res) {
       res.status(400).json({ error: "Les utilisateurs sont introuvables!" });
     });
 }
+
+/**
+ * Fonction qui permet d'utiliser une méthode GET pour checker un utilisateur stockés dans la BDD,
+ * via son id qui lui a été assigné.
+ */
 
 function getUser(req, res) {
   const id = req.params.id;
@@ -148,7 +165,10 @@ function getUser(req, res) {
     });
 }
 
-//PUT
+/**
+ * Route PUT : Fonction qui nous permet de modifier l'avatar de l'utilisateur avec une image qu'il va fournir,
+ * on utilise le package 'fs' pour supprimer l'ancienne image si cela plus d'une fois qu'il modifie l'image.
+ */
 
 async function modifyProfil(req, res) {
   try {
@@ -200,7 +220,11 @@ async function modifyProfil(req, res) {
   }
 }
 
-//DELETE
+/**
+ * Route DELETE : Qui va nous permettre de supprimer un utilisateur, on utilise le package 'fs' :
+ * pour supprimer son avatar stocké dans la BDD. 
+ * Après la suppression de l'utilisateur, tout les posts et commentaires de ce même utilisateur seront supprimés
+ */
 
 async function deleteUser(req, res, next) {
   const id = req.params.id;

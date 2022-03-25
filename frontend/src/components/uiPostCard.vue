@@ -26,6 +26,10 @@
                 this.imageUrl = URL.createObjectURL(this.image);
                 console.log(this.image.name);
             },
+            /**
+             * Fonction POST executer avec axios , qui fait un appel backend pour crée un post. On fournit un formData,
+             * pour asssigné une image au post si il y en a une. 
+             */
             postCard() {
                 const formData = new FormData();
                 formData.append("image", this.image);

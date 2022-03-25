@@ -1,9 +1,13 @@
 const mysql = require("mysql");
 require('dotenv').config();
 
+//Données BDD
+
 const host = process.env.HOST;
 const user = process.env.USER;
 const psw = process.env.PASSWORD;
+
+//Connection à la BDD
 
 const db = mysql.createConnection({
   host: host,

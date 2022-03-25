@@ -13,6 +13,10 @@
         }
     },
     methods: {
+        /**
+         * Fonction DELETE executer avec axios, qui fait un appel backend pour supprimer un utilisateur,
+         * la page n'est accessible que pour les admins de l'application pour gérer les utilisateurs
+         */
         async deleteUser(id){
             let confirmDeleteUser = confirm("Voulez vous vraiment supprimer ce compte ?");
             if (confirmDeleteUser == true) {
@@ -26,6 +30,7 @@
                     console.log(response.data)
                     window.location.reload();
                 })
+                .catch((error) => console.error(error))
             } else {
                 return;
             }
@@ -37,6 +42,9 @@
             this.$router.push('/');
         };
     },
+    /**
+     * Fonction GET executer avec axios, qui fait un appel backend pour afficher tout les utilisateurs qui se sont isncrit sur l'appli
+     */
         mounted: function (){
         axios.get("http://localhost:5000/api/users", {
             headers: {
