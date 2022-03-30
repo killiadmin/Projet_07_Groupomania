@@ -81,7 +81,7 @@ export default {
             window.location.reload();
           } , 200);
         })
-        .catch(() => this.error = "Le compte n'a pas pu être crée! Veuillez renseigner un mot de passe de min. 8 caractères et deux chiffres!")
+        .catch(() => this.error = "Veuillez vérifier la saisie de vos idenfiant, votre mot de passe doit être de min. 8 caractères et deux chiffres!")
       }
     }
 }

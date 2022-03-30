@@ -64,7 +64,7 @@ async function createNewPost(req, res) {
   try {
     
     if (req.file) {
-      req.file = `${req.protocol}://${req.get("host")}/images/${
+      req.file = `${req.protocol}://${req.get("host")}/images/private/${
         req.file.filename
       }`;
     } else {
@@ -99,22 +99,23 @@ async function createNewPost(req, res) {
 
 async function modifyPostProfil(req, res) {
   try {
-    const userId = res.locals.decodedToken.userId;
+    const { userId } = res.locals.decodedToken;
     const { id } = req.params;
     const { body } = req.body;
+    const { admin } = res.locals.decodedToken;
     const post = await models.Post.findOne({
       where: {
         id: id,
       },
     });
     if (req.file) {
-      req.file = `${req.protocol}://${req.get("host")}/images/${
+      req.file = `${req.protocol}://${req.get("host")}/images/private/${
         req.file.filename
       }`;
     } else {
       req.file = null;
     }
-    if (userId === post.userId || userId.admin === true) {
+    if (userId === post.userId || admin === true) {
       await models.Post.update(
         {
           body: body ? body : post.message,
@@ -146,7 +147,8 @@ async function modifyPostProfil(req, res) {
 */
 
 async function deletePost(req, res) {
-  const { userId } = await res.locals.decodedToken;
+  const { userId } = res.locals.decodedToken;
+  const { admin } = res.locals.decodedToken;
   const { id } = req.params;
   
   const post = await models.Post.findOne({
@@ -155,10 +157,10 @@ async function deletePost(req, res) {
     },
   });
 
-  if (userId === post.userId || userId === 1) {
+  if (userId === post.userId || admin === true) {
     if (post.imageUrl) {
-      const filename = post.imageUrl.split("/images/")[1];
-      fs.unlink(`images/${filename}`, () => {
+      const filename = post.imageUrl.split("/images/private")[1];
+      fs.unlink(`images/private/${filename}`, () => {
         models.Comment.destroy({
           where: {
             postId: id,

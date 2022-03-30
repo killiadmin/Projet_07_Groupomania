@@ -1,14 +1,9 @@
 <script>
 import axios from "axios";
-import postCard from "../components/uiPostCard.vue";
 import moment from "moment";
-
 
 export default {
     name: "card",
-    components: {
-        postCard
-    },
     data() {
         return {
             userId: localStorage.getItem("userId"),
@@ -24,7 +19,6 @@ export default {
             posts:[],
             comment: {},
             comments: [],
-            
       };
     },
     methods: {
@@ -46,9 +40,9 @@ export default {
                             Authorization: "Bearer " + this.token,
                      },
             })
-            .then((response) => {
-                window.location.reload();
-                console.log(response)
+            .then(() => {
+            let i = this.posts.map((data) => data.id).indexOf(id);
+            this.posts.splice(i, 1);
             })
             .catch((error) => console.error(error))
             } else {
@@ -86,22 +80,34 @@ export default {
                 PostId: postId, 
                 body: this.bodyComment }
 
-            if (this.bodyComment != null) {
+            if (this.bodyComment != "") {
                 await axios.post(`http://localhost:5000/api/comments/${postId}`, data,  {
                     headers: {
                 Authorization: "Bearer " + this.token,
                 "Content-Type": "application/json",
               },
                 })
-                .then((response) => { 
-                    console.log(response)
+                .then(() => {
                     window.location.reload();
+                    this.bodyComment = ""
                 })
                 .catch((error) => console.error(error))
             } else {
                 alert("Vous n'avez rien saisie dans la section commentaire!")
             }
-        }
+        },
+        async getComment() {
+            await axios.get("http://localhost:5000/api/comments", {
+            headers : {
+                Authorization: "Bearer " + this.token,
+                "Content-Type": "application/json",
+            },
+        })
+        .then((response) => {
+            this.comments = response.data.comments;
+        })
+        .catch((error) => console.error(error))
+        },
     },
     beforeMount: function() {
         if(!localStorage.getItem("userId")){
@@ -112,18 +118,19 @@ export default {
      * Fonction GET executer avec axios, qui fait un appel backend pour accéder aux données d'utilisateurs
      */
         mounted: function (){
-        axios.get("http://localhost:5000/api/users", {
-            headers: {
-                Authorization: "Bearer " + this.token,
-                "Content-Type": "application/json",
-        },
-        })
-        .then((response) => {
-            this.users = response.data;
-            console.log(this.users)
-        })
-        .catch((error) => console.error(error))
-
+            const userId = localStorage.getItem("userId")
+            const token = localStorage.getItem("token")
+            if(userId && token) {
+                axios.get("http://localhost:5000/api/users", {
+                    headers: {
+                        Authorization: "Bearer " + this.token,
+                        "Content-Type": "application/json",
+                },
+                })
+                .then((response) => {
+                    this.users = response.data;
+                })
+                .catch((error) => console.error(error))
         /**
          * Fonction GET executer avec axios, qui fait un appel backend pour accéder aux données d'un utilisateur
          */
@@ -136,10 +143,8 @@ export default {
         })
         .then((response) => {
             this.user = response.data;
-            console.log(this.user)
             })
         .catch((error) => console.error(error))
-
         /**
          * Fonction GET executer avec axios, qui fait un appel backend pour accéder à la BDD et afficher les posts
          */
@@ -152,10 +157,8 @@ export default {
         })
         .then((response) => {
         this.posts = response.data;
-        console.log(this.posts)
         })
         .catch((error) => console.error(error))
-
         /**
          * Fonction GET executer avec axios, qui fait un appel backend pour accéder aux commentaires et afficher les commentaires
          */
@@ -167,14 +170,11 @@ export default {
         })
         .then((response) => {
             this.comments = response.data.comments;
-            console.log(response.data.comments)
         })
         .catch((error) => console.error(error))
+            }
         },
-
 }
-
-
 </script>
 
 <template>
@@ -187,13 +187,13 @@ export default {
     <div class="card m-auto">
         <div class="card-header d-flex fw-bold" >{{ post.User.firstname }} {{ post.User.lastname }}
             <img v-if="post.User.imageUrl !== null" :src=post.User.imageUrl class="rounded-circle" alt="Avatar"/>
-            <img v-else src="http://localhost:5000/images/DEFAULT.png" class="rounded-circle" alt="Avatar"/>
+            <img v-else src="http://localhost:5000/images/public/DEFAULT.png" class="rounded-circle" alt="Avatar"/>
                 <div>
                     <span class="display-date fw-light">Publié le : {{ dateFormat(post.createdAt) }}</span>
                 </div>
             <div class="d-flex">
                 <a href="#" class="btn btn-danger btn-delete" v-if="user.admin == true || post.User.id == userId " @click.prevent="deletePost(post.id)">Supprimer</a>
-                <a href="#" class="btn btn-danger btn-responsive" v-if="user.admin == true || post.User.id == userId " @click.prevent="deletePost(post.id)">X</a>
+                <a href="#" class="btn btn-danger btn-responsive" v-if="user.admin == true || post.User.id == userId " @click.prevent="deletePost(post.id)"><fa icon="trash-can" /></a>
             </div>
         </div>
       <div class="form-floating" v-if="post.imageUrl !== null">
@@ -206,21 +206,22 @@ export default {
         <div v-if="post.id === comment.postId" class="user d-flex align-items-center">    
             <div class="d-flex flex-column" >
                 <div class="bloc__users" v-for="user in users" v-bind:key="user.id">
-                <img v-if="user.id === comment.User.id && user.imageUrl !== null" :src=user.imageUrl class="rounded-circle" alt="Avatar"/>
+                <img v-if="user.id === comment.User.id && user.imageUrl !== null" :src=user.imageUrl class="rounded-circle image__comment" alt="Avatar"/>
                     <p class="fw-bold" v-if="user.id === comment.userId">{{ user.firstname }} {{ user.lastname }} :</p>                    
                 </div>
 
                 <p>{{ comment.body }}</p>
             </div>
                 <a href="#" class="btn btn-danger btn-delete" v-if="comment.userId == user.id || user.id == 1" @click.prevent="deleteComment(comment.id)">Supprimer</a>
-                <a href="#" class="btn btn-danger btn-responsive" v-if="comment.userId == user.id || user.id == 1" @click.prevent="deleteComment(comment.id)">X</a>
+                <a href="#" class="btn btn-danger btn-responsive" v-if="comment.userId == user.id || user.id == 1" @click.prevent="deleteComment(comment.id)"><fa icon="trash-can" /></a>
                 {{ dateFormat(comment.createdAt) }}
         </div>
     </div>
         </div>
         <div class="d-flex">
             <input id="bodyComment" v-model="bodyComment" type="text" class="form-control" placeholder="Commentaire"/>
-            <a href="#" class="btn btn-warning" @click.prevent="postComment(post.id)">Envoyer</a>
+            <a href="#" class="btn btn-warning btn-delete" @click.prevent="postComment(post.id)">Envoyer</a>
+            <a href="#" class="btn btn-warning btn-responsive" @click.prevent="postComment(post.id)"><fa icon="share" /></a>
         </div>
       </div>
     </div>
@@ -284,8 +285,11 @@ input{
         display: block;
     }
 
-    .rounded-circle {
-        display: none;
+    .image__comment {
+        width: 25px;
+    }
+    .bloc__connected{
+        width:50%;
     }
 }
 

@@ -61,7 +61,8 @@ async function createComment(req, res) {
  */
 
 async function deleteComment(req, res) {
-  const { userId } = await res.locals.decodedToken;
+  const { userId } = res.locals.decodedToken;
+  const { admin } = res.locals.decodedToken;
   const { id } = req.params;
   
   const comment = await models.Comment.findOne({
@@ -70,7 +71,7 @@ async function deleteComment(req, res) {
     },
   });
 
-  if (userId === comment.userId || userId === 1) { 
+  if (userId === comment.userId || admin === true) { 
     models.Comment.destroy({
       where: {
         id: id,

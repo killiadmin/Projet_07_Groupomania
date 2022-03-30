@@ -13,7 +13,10 @@ export default {
         if (userId) {
           localStorage.clear();  
         this.$router.push('/');
-        window.location.reload();
+        setTimeout(function() {
+          window.location.reload();
+        } , 50);
+
         } else {
           window.alert("Vous n'etes pas connecté !")
         }

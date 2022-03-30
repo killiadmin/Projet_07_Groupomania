@@ -7,7 +7,6 @@
                 token: localStorage.getItem("token"),
                 userId: localStorage.getItem("userId"),
                 body: '',
-                imageUrl: '',
                 error: '',
             };
         },
@@ -23,8 +22,6 @@
         methods: {
             selectFile() {
                 this.image = this.$refs.image.files[0];
-                this.imageUrl = URL.createObjectURL(this.image);
-                console.log(this.image.name);
             },
             /**
              * Fonction POST executer avec axios , qui fait un appel backend pour crée un post. On fournit un formData,
@@ -48,6 +45,20 @@
                 .catch((error) => console.error(error));
                 this.body = "";
                 this.image = "";
+            }, 
+
+            async getPosts() {
+               await axios.get("http://localhost:5000/api/posts", {
+            headers: {
+                Authorization: "Bearer " + this.token,
+                "Content-Type": "application/json",
+            },
+        })
+        .then((response) => {
+        this.posts = response.data;
+        console.log(this.posts)
+        })
+        .catch((error) => console.error(error))
             }
         },
     }

@@ -40,7 +40,6 @@ export default{
         })
         .then((response) => {
             this.user = response.data;
-            console.log(this.user)
             })
         .catch((error) => console.error(error))
     },
@@ -71,9 +70,9 @@ export default{
                     .then(() => {
                          setTimeout(function() {
                          window.location.reload();
-                    } , 200)
-                    .catch((error) => console.error(error))
+                    } , 50)
                 })
+                    .catch((error) => console.error(error))
                 } else {
                     return;
                 }
@@ -119,7 +118,7 @@ export default{
       <div class="container d-flex align-items-center flex-column gap-3 position">
           <h1 class="h3 mb-3 fw-normal text-center" v-if="mode == 'cancelModify'">Votre profil</h1>
           <h1 class="h3 mb-3 fw-normal text-center" v-else>Veuillez renseignez vos modifications</h1>
-            <img v-if="user.imageUrl == null" src="http://localhost:5000/images/DEFAULT.png" class="rounded-circle" alt="Avatar"/>
+            <img v-if="user.imageUrl == null" src="http://localhost:5000/images/public/DEFAULT.png" class="rounded-circle" alt="Avatar"/>
             <img v-else :src=user.imageUrl class="rounded-circle" alt="Avatar"/>
             <label for="file-input" class="btn btn-secondary mt-1" v-if="mode == 'modify'">Modifier mon avatar</label>
             <input id="image" type="file" name="image" ref="image" @change="filePictureUpload()"/>

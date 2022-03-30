@@ -8,6 +8,7 @@ const schemaPassValid = new passwordValidator();
 schemaPassValid.is().min(8).is().max(50).has().digits(2).has().not().spaces();
 
 const email_regex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+const firstLastNameRegex = /^(([a-zA-ZÀ-ÿ]+[\s\-]{1}[a-zA-ZÀ-ÿ]+)|([a-zA-ZÀ-ÿ]+))$/;
 
 /**
  * Route SIGNUP : Après vérification de la saisie des caractères données : 
@@ -34,6 +35,12 @@ function signup(req, res) {
       error: "Votre prénom et nom est compris entre 3 et 20 caracteres!",
     });
   };
+
+  if (!firstLastNameRegex.test(firstname, lastname)) {
+    return res.status(400).json({
+      error: "Votre prénom et nom ne sont pas conforme!",
+    });
+  }
 
   //Controle de la saisie du mail
   if (!email_regex.test(email)) {
@@ -115,7 +122,7 @@ async function login(req, res) {
         return res.status(401).send({ error: "Le mot de passe est invalide!" });
       } else {
         const token = jwt.sign(
-          { userId: user.id },
+          { userId: user.id, admin: user.admin },
           process.env.PASSWORD_TOKEN,
           {
             expiresIn: "48h",
@@ -182,13 +189,13 @@ async function modifyProfil(req, res) {
     let imageReq = req.file;
 
       if (imageReq) {
-        imageReq = `${req.protocol}://${req.get("host")}/images/${ req.file.filename }`;
+        imageReq = `${req.protocol}://${req.get("host")}/images/private/${ req.file.filename }`;
     } else {
       imageReq = user.imageUrl;
     }
     if (user.imageUrl != null) {
-      const filename = user.imageUrl.split("/images/")[1];
-        fs.unlink(`images/${filename}`,() => {
+      const filename = user.imageUrl.split("/images/private")[1];
+        fs.unlink(`images/private/${filename}`,() => {
       models.User.update(
         {
           imageUrl: imageReq,
@@ -199,7 +206,7 @@ async function modifyProfil(req, res) {
           },
         }
       );
-      return res.status(200).send({ message: "Modifications enrigistrés" });
+      return res.status(200).send({ message: "Modifications enregistrés" });
     }) 
     } else {
       await models.User.update(
@@ -212,7 +219,7 @@ async function modifyProfil(req, res) {
           },
         }
       );
-      return res.status(200).send({ message: "Modifications enrigistrés" });
+      return res.status(200).send({ message: "Modifications enregistrés" });
     }
 } catch (error) {
     console.log(error);
@@ -221,24 +228,48 @@ async function modifyProfil(req, res) {
 }
 
 /**
- * Route DELETE : Qui va nous permettre de supprimer un utilisateur, on utilise le package 'fs' :
- * pour supprimer son avatar stocké dans la BDD. 
- * Après la suppression de l'utilisateur, tout les posts et commentaires de ce même utilisateur seront supprimés
+ * Route DELETE : Qui va nous permettre de supprimer un utilisateur, ainsi que son contenu:
+ * Ceux qui ont les droits de supprimer un utilisateur sont le propriétaire du compte et l'admin,
+ * La suppression des images est checker si l'utilisateur à modifier son avatar ou,
+ * si il lui est attribué des posts possédant des images ou non,
+ * les commentaires qui sont en rapport avec son id sont également checker et supprimés
  */
 
 async function deleteUser(req, res, next) {
   const id = req.params.id;
+  const { userId } = res.locals.decodedToken;
+  const { admin } = res.locals.decodedToken;
   const user = await models.User.findOne({ where: { id: id } });
+  const post = await models.Post.findOne({ where: { userId: id } });
   try {
-    const filename = user.imageUrl.split("/images/")[1];
-      fs.unlink(`images/${filename}`,() => {
-      models.User.destroy({ where: { id: id } });
+    if(userId == id || admin === true){
+    models.Comment.destroy({ where: { userId: id } });
+    
+    if(post.imageUrl === null){
       models.Post.destroy({ where: { userId: id } });
-      models.Comment.destroy({ where: { userId: id } });
+    } else {
+      const filepost = post.imageUrl.split("/images/private")[1];
+      fs.unlink(`images/private/${filepost}`, () => {
+        models.Post.destroy({ where: { userId: id } });
+      });
+    };
+
+    if(user.imageUrl === null){
+      models.User.destroy({ where: { id: id } });
+    } else {
+      const filename = user.imageUrl.split("/images/private")[1];
+      fs.unlink(`images/private/${filename}`,() => {
+      models.User.destroy({ where: { id: id } });
+    });
+    }; 
+    
     return res.status(200).json({ message: "L'utilisateur à bien été supprimé" });
-  })} catch(error){
-     return res.status(500).send({ error: "La suppression de l'utilisateur pose problème!" });
-  };
+} else {
+  return res.status(403).send({ error: "Vous n'êtes pas autorisés à supprimer cet utilisateur!"})
+}
+} catch(error){
+   return res.status(500).send({ error: "La suppression de l'utilisateur pose un problème!" });
+};
 };
 
-module.exports = { signup, login, getUser, getUsers, modifyProfil, deleteUser };
+module.exports = { signup, login, getUser, getUsers, modifyProfil, deleteUser};

@@ -6,9 +6,11 @@
     "build": "vite build",
     "preview": "vite preview --port 5050",
     "doc": "jsdoc -c jsdoc.json"
-
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.1.1",
+    "@fortawesome/free-solid-svg-icons": "^6.1.1",
+    "@fortawesome/vue-fontawesome": "^3.0.0-5",
     "axios": "^0.26.0",
     "bootstrap": "^5.1.3",
     "bootstrap-vue-3": "^0.1.6",
