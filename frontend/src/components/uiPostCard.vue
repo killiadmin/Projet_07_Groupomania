@@ -56,7 +56,6 @@
         })
         .then((response) => {
         this.posts = response.data;
-        console.log(this.posts)
         })
         .catch((error) => console.error(error))
             }
@@ -67,7 +66,7 @@
 <template>
     <div class="form-floating">
           <input contenteditable="true" class="form-control" id="body" v-model="body"/>
-      <label  for="floatingTextarea" >Votre commentaire</label>
+      <label  for="floatingTextarea" >Exprimez-vous !</label>
     </div>
     <div class="d-flex">
         <input id="image" class="imageUpload" name="image" ref="image" type="file" accept=".jpg, .png, .gif" @change="selectFile()"/>

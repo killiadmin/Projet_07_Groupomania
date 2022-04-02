@@ -14,7 +14,7 @@ export default {
 <div class="container">
     <postCard></postCard>
         <card></card>
-    </div>
+</div>
 </template>
 
 <style>

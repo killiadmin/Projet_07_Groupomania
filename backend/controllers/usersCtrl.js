@@ -13,7 +13,7 @@ const firstLastNameRegex = /^(([a-zA-ZÀ-ÿ]+[\s\-]{1}[a-zA-ZÀ-ÿ]+)|([a-zA-ZÀ
 /**
  * Route SIGNUP : Après vérification de la saisie des caractères données : 
  * (Nombre de caractère du nom et prénom, synthaxe de l'email, saisie d'un mot de passe solide). 
- * Cette fonction va crée un nouvel utilisateur, elle va hashé le mdp avec bcrypt avant de fournir les informations à BDD,
+ * Cette fonction va crée un nouvel utilisateur, elle va hashé le mdp avec bcrypt avant de fournir les informations à la BDD,
  * ensuite qui va crée un nouveau token d'authentification et finir par envoyer les infos.
  */
 
@@ -32,26 +32,32 @@ function signup(req, res) {
   //Controle de la saisie du Nom et Prenom
   if (lastname.lenght >= 20 || lastname.length <= 2 || firstname.lenght >= 20 || firstname.length <= 2) {
     return res.status(400).json({
-      error: "Votre prénom et nom est compris entre 3 et 20 caracteres!",
+      error: "Votre prénom et nom doit être compris entre 3 et 20 caracteres!",
     });
   };
 
-  if (!firstLastNameRegex.test(firstname, lastname)) {
+  if (!firstLastNameRegex.test(firstname)) {
     return res.status(400).json({
-      error: "Votre prénom et nom ne sont pas conforme!",
+      error: "Votre prénom n'est pas conforme!",
     });
-  }
+  };
+
+  if (!firstLastNameRegex.test(lastname)) {
+    return res.status(400).json({
+      error: "Votre nom n'est pas conforme!",
+    });
+  };
 
   //Controle de la saisie du mail
   if (!email_regex.test(email)) {
     return res.status(400).json({ 
-      error: "Votre mail n'est pas conforme!" });
-  }
+      error: "Votre  adresse mail n'est pas conforme!" });
+  };
 
   //Controle password-validator
   if (!schemaPassValid.validate(password)) {
     return res.status(401).json({
-      error: "Sécurité du mot de passe faible. Il doit contenir au moins 8 caractère, des majuscules et deux chiffres!",
+      error: "Sécurité du mot de passe trop faible. Il doit contenir au moins 8 caractère et deux chiffres!",
     });
   };
 
@@ -80,7 +86,7 @@ function signup(req, res) {
                 },
                 process.env.PASSWORD_TOKEN,
                 {
-                  expiresIn: "48h",
+                  expiresIn: "1h",
                 }
                 )
               });
@@ -115,7 +121,7 @@ async function login(req, res) {
       where: { email: email },
     });
     if (!user) {
-      return res.status(401).json({ error: "Les parametres des utilisateurs sont obsoletes!" });
+      return res.status(401).json({ error: "Vos identifiants sont incorrect ou inexistant!" });
     } else {
       const hash = await bcrypt.compare(password, user.password);
       if (!hash) {
@@ -125,7 +131,7 @@ async function login(req, res) {
           { userId: user.id, admin: user.admin },
           process.env.PASSWORD_TOKEN,
           {
-            expiresIn: "48h",
+            expiresIn: "1h",
           }
         );
         res.status(200).send({
@@ -174,7 +180,7 @@ function getUser(req, res) {
 
 /**
  * Route PUT : Fonction qui nous permet de modifier l'avatar de l'utilisateur avec une image qu'il va fournir,
- * on utilise le package 'fs' pour supprimer l'ancienne image si cela plus d'une fois qu'il modifie l'image.
+ * on utilise le package 'fs' pour supprimer l'ancienne image si cela plus d'une fois qu'il modifie son avatar.
  */
 
 async function modifyProfil(req, res) {
@@ -223,7 +229,7 @@ async function modifyProfil(req, res) {
     }
 } catch (error) {
     console.log(error);
-    return res.status(500).send({ error: "Erreur serveur" });
+    return res.status(500).send({ error: "Le profil de l'utilisateur n'a pas pu être enregistrés" });
   }
 }
 
@@ -245,27 +251,29 @@ async function deleteUser(req, res, next) {
     if(userId == id || admin === true){
     models.Comment.destroy({ where: { userId: id } });
     
-    if(post.imageUrl === null){
-      models.Post.destroy({ where: { userId: id } });
-    } else {
-      const filepost = post.imageUrl.split("/images/private")[1];
-      fs.unlink(`images/private/${filepost}`, () => {
+    if(post != null){
+      if(post.imageUrl === null){
         models.Post.destroy({ where: { userId: id } });
-      });
-    };
+      } else {
+        const filepost = post.imageUrl.split("/images/private")[1];
+        fs.unlink(`images/private/${filepost}`, () => {
+          models.Post.destroy({ where: { userId: id } });
+        });
+      };
+    } else { Promise.resolve(post) }
 
-    if(user.imageUrl === null){
-      models.User.destroy({ where: { id: id } });
-    } else {
-      const filename = user.imageUrl.split("/images/private")[1];
-      fs.unlink(`images/private/${filename}`,() => {
-      models.User.destroy({ where: { id: id } });
-    });
-    }; 
+      if(user.imageUrl === null){
+        models.User.destroy({ where: { id: id } });
+      } else {
+        const filename = user.imageUrl.split("/images/private")[1];
+        fs.unlink(`images/private/${filename}`,() => {
+        models.User.destroy({ where: { id: id } });
+      });
+      };
     
     return res.status(200).json({ message: "L'utilisateur à bien été supprimé" });
 } else {
-  return res.status(403).send({ error: "Vous n'êtes pas autorisés à supprimer cet utilisateur!"})
+  return res.status(403).send({ error: "Vous n'êtes pas autorisés à supprimer cet utilisateur!"});
 }
 } catch(error){
    return res.status(500).send({ error: "La suppression de l'utilisateur pose un problème!" });

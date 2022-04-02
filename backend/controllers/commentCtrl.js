@@ -23,8 +23,8 @@ async function readComments(req, res) {
     return res
       .status(400)
       .json({ error: "Il y a eu une erreur pour afficher les commentaires!" });
-  }
-}
+  };
+};
 
 /**
  * Fonction POST qui permet de crée un commentaire. 
@@ -52,8 +52,8 @@ async function createComment(req, res) {
     return res
       .status(400)
       .json({ error: "Votre commentaire n'a pas été crée!" });
-  }
-}
+  };
+};
 
 /**
  * Fonction DELETE qui permet de supprimer un commentaire avec la méthode destroy. 
@@ -84,7 +84,7 @@ async function deleteComment(req, res) {
     return res
       .status(400)
       .json({ message: "Votre commentaire n'a pas été supprimé!" });
-  }
-}
+  };
+};
 
 module.exports = { readComments, createComment, deleteComment };

@@ -19,6 +19,8 @@ export default {
             posts:[],
             comment: {},
             comments: [],
+            bodyComment: "",
+            error: ""
       };
     },
     methods: {
@@ -130,7 +132,14 @@ export default {
                 .then((response) => {
                     this.users = response.data;
                 })
-                .catch((error) => console.error(error))
+                .catch((error) => {
+            if (error.response.status === 401) {
+                localStorage.clear();
+                this.$router.push();
+                window.location.reload();
+            } else {
+                console.error(error)
+            }})            
         /**
          * Fonction GET executer avec axios, qui fait un appel backend pour accéder aux données d'un utilisateur
          */
@@ -144,7 +153,14 @@ export default {
         .then((response) => {
             this.user = response.data;
             })
-        .catch((error) => console.error(error))
+        .catch((error) => {
+            if (error.response.status === 401) {
+                localStorage.clear();
+                this.$router.push();
+                window.location.reload();
+            } else {
+                console.error(error)
+            }})            
         /**
          * Fonction GET executer avec axios, qui fait un appel backend pour accéder à la BDD et afficher les posts
          */
@@ -158,7 +174,14 @@ export default {
         .then((response) => {
         this.posts = response.data;
         })
-        .catch((error) => console.error(error))
+        .catch((error) => {
+            if (error.response.status === 401) {
+                localStorage.clear();
+                this.$router.push();
+                window.location.reload();
+            } else {
+                console.error(error)
+            }})            
         /**
          * Fonction GET executer avec axios, qui fait un appel backend pour accéder aux commentaires et afficher les commentaires
          */
@@ -171,7 +194,14 @@ export default {
         .then((response) => {
             this.comments = response.data.comments;
         })
-        .catch((error) => console.error(error))
+        .catch((error) => {
+            if (error.response.status === 401) {
+                localStorage.clear();
+                this.$router.push();
+                window.location.reload();
+            } else {
+                console.error(error)
+            }})            
             }
         },
 }
@@ -209,21 +239,25 @@ export default {
                 <img v-if="user.id === comment.User.id && user.imageUrl !== null" :src=user.imageUrl class="rounded-circle image__comment" alt="Avatar"/>
                     <p class="fw-bold" v-if="user.id === comment.userId">{{ user.firstname }} {{ user.lastname }} :</p>                    
                 </div>
-
                 <p>{{ comment.body }}</p>
             </div>
-                <a href="#" class="btn btn-danger btn-delete" v-if="comment.userId == user.id || user.id == 1" @click.prevent="deleteComment(comment.id)">Supprimer</a>
-                <a href="#" class="btn btn-danger btn-responsive" v-if="comment.userId == user.id || user.id == 1" @click.prevent="deleteComment(comment.id)"><fa icon="trash-can" /></a>
+                <a href="#" class="btn btn-danger btn-delete" v-if="comment.userId == user.id || user.admin == true" @click.prevent="deleteComment(comment.id)">Supprimer</a>
+                <a href="#" class="btn btn-danger btn-responsive" v-if="comment.userId == user.id || user.admin == true" @click.prevent="deleteComment(comment.id)"><fa icon="trash-can" /></a>
                 {{ dateFormat(comment.createdAt) }}
         </div>
     </div>
         </div>
-        <div class="d-flex">
-            <input id="bodyComment" v-model="bodyComment" type="text" class="form-control" placeholder="Commentaire"/>
-            <a href="#" class="btn btn-warning btn-delete" @click.prevent="postComment(post.id)">Envoyer</a>
+        <div class="d-flex justify-content-end">
+            <a href="#" class="btn btn-warning btn-delete" @click.prevent="postComment(post.id)">Poster votre commentaire ici !</a>
             <a href="#" class="btn btn-warning btn-responsive" @click.prevent="postComment(post.id)"><fa icon="share" /></a>
         </div>
       </div>
+    </div>
+</div>
+<div class="container__comment">
+    <div class="bloc__comment">
+        <p>Votre espace commentaire :</p>
+    <input id="bodyComment" v-model="bodyComment" type="text" class="form-control" placeholder="Votre commentaire ..."/>
     </div>
 </div>
 </template>
@@ -234,7 +268,25 @@ input{
     margin-left: 5px;
 }
 
-.container {
+.container__comment{
+    height:120px;
+}
+
+.bloc__comment{
+    position:fixed;
+    bottom: 10px;
+    width: 500px;
+    padding: 10px;
+    right: 0;
+    left: 0;
+    background-color: #f9815c;
+    color: white;
+    border-radius:20px;
+    box-shadow: 1px 1px 10px #000000;
+    margin: auto;
+}
+
+.article {
     margin-top: 20px;
     width:60%;
 }
@@ -274,6 +326,15 @@ input{
     text-align: center
 }
 
+@media (max-width: 992px) {
+    .container{
+        width: 70%;
+    }
+    .bloc__comment{
+        width:400px;
+    }
+}
+
 @media (max-width: 767px) {
     .container{
         width: 100%;
@@ -290,6 +351,9 @@ input{
     }
     .bloc__connected{
         width:50%;
+    }
+    .bloc__comment{
+        width:300px;
     }
 }
 

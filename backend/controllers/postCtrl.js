@@ -20,6 +20,7 @@ async function readPosts(req, res) {
     });
     return res.status(200).send(posts);
   } catch (err) {
+    console.error(err);
     return res.status(500).send({
       error: "Les posts ne peuvent pas être afficher!",
     });
@@ -48,11 +49,12 @@ async function readPost(req, res) {
     });
     return res.status(200).send(post);
   } catch (error) {
+    console.error(error);
     return res.status(500).send({
       error: "Votre post ne peut pas être afficher!",
     });
-  }
-}
+  };
+};
 
 /**
  * Fonction POST qui nous permet de crée un nouveau post, si une image est fournit elle va crée un lien vers cette image stockés
@@ -69,7 +71,7 @@ async function createNewPost(req, res) {
       }`;
     } else {
       req.file = null;
-    }
+    };
     
     const { body } = req.body;
     const { userId } = res.locals.decodedToken;
@@ -89,11 +91,11 @@ async function createNewPost(req, res) {
   } catch (err) {
     console.error(err);
     res.status(404).json({ error: "Votre post n'a pas été envoyé!" });
-  }
-}
+  };
+};
 
 /**
- * Fonction PUT qui n'est pas exploiter dans le front, qui permet de modifier le contenu d'un post donc son body déjà existant 
+ *(À confirmer avec Groupomania), Fonction PUT qui n'est pas exploiter dans le front, qui permet de modifier le contenu d'un post donc son body déjà existant 
  * et son image.  
  */
 
@@ -114,7 +116,7 @@ async function modifyPostProfil(req, res) {
       }`;
     } else {
       req.file = null;
-    }
+    };
     if (userId === post.userId || admin === true) {
       await models.Post.update(
         {
@@ -138,8 +140,8 @@ async function modifyPostProfil(req, res) {
   } catch (error) {
     console.log(error);
     return res.status(500).send({ error: "Erreur serveur" });
-  }
-}
+  };
+};
 
 /**
  * Fonction DELETE qui permet de supprimer le body d'un post. Si il y a une image dans ce post, elle sera supprimer du dossier 'images'.
@@ -190,8 +192,8 @@ async function deletePost(req, res) {
     return res
       .status(400)
       .json({ message: "Vous ne pouvez pas supprimer ce post" });
-  }
-}
+  };
+};
 
 module.exports = {
   readPosts,

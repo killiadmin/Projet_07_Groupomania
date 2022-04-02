@@ -41,7 +41,14 @@ export default{
         .then((response) => {
             this.user = response.data;
             })
-        .catch((error) => console.error(error))
+        .catch((error) => {
+            if (error.response.status === 401) {
+                localStorage.clear();
+                this.$router.push();
+                window.location.reload();
+            } else {
+                console.error(error)
+            }})            
     },
         methods: {
             modifyAccount() {

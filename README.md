@@ -18,10 +18,11 @@ Vous devrez avoir Vue CLI, Node et MySQL déjà installés localement.
 ## Installation Backend 
 
 ▹ Clonez ce repository  
-▹ Créer un dossier "private" dans le dossier images pour la gestion des images  
-▹ Retirer l'extension `.example` sur le `.env` en remplaçant par vos informations MySQL pour accéder à la base de données  
+▹ A partir du dossier backend, créer votre base de données avec mySQL puis éxecutez `npx sequelize db:create` et `npx sequelize db:migrate`  
+▹ Retirer l'extension `.example` sur le `.env` en remplaçant par vos informations MySQL pour accéder à votre base de données  
 ▹ Vérifier que les données contenues dans le fichier `config.json` sont correctes et correspondent à votre base de données  
-▹ A partir du dossier backend, exécutez `npm install` pour installer les nodes_modules puis éxecuter `npm run start`  
+▹ Créer un dossier "private" dans le dossier images pour la gestion des avatar et images des posts  
+▹ Exécuter `npm install` pour installer les nodes_modules puis éxecuter `npm run start`  
 ▹ Le serveur doit fonctionner sur localhost avec le `port 5000`   
 
 ## Installation Frontend

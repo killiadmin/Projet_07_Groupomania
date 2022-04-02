@@ -16,7 +16,6 @@ export default {
         setTimeout(function() {
           window.location.reload();
         } , 50);
-
         } else {
           window.alert("Vous n'etes pas connecté !")
         }
@@ -53,7 +52,7 @@ export default {
 
 <template>
 <header>
-    <div class="px-3 py-2 border-bottom mb-3" >
+    <div class="bar__nav px-3 py-2 border-bottom mb-3" >
       <div class="container d-flex flex-wrap">
         <img class="d-flex" src="../../../assets/logo_monochrome_white.png" alt="" width="400" height="50">
         <div class="text-end d-flex align-items-center" v-if="userId">

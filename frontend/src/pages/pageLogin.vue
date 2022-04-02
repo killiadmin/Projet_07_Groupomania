@@ -58,7 +58,7 @@ export default {
             window.location.reload();
           } , 200);
         })
-        .catch(() => (this.error = "Votre adresse email ou votre password est invalide!"))
+        .catch((error) => this.error = error.response.data.error)      
       },
       /**
        * Fonction POST executer avec axios, qui fait un appel backend pour se créer un compte et envoyer les infos founit au backend
@@ -81,8 +81,32 @@ export default {
             window.location.reload();
           } , 200);
         })
-        .catch(() => this.error = "Veuillez vérifier la saisie de vos idenfiant, votre mot de passe doit être de min. 8 caractères et deux chiffres!")
-      }
+        .catch((error) => this.error = error.response.data.error)
+      },
+      createAdmin() {
+        let confirmCreateAdmin = confirm("Êtes vous sûr de vouloir créer un compte modérateur? Votre compte sera vérifié!")
+
+        if(confirmCreateAdmin === true) {
+          axios.post("http://localhost:5000/api/users/createAdmin",{
+            firstname: document.getElementById("firstname").value,
+            lastname: document.getElementById("lastname").value,
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value,
+          })
+          .then((response) => {
+            localStorage.setItem("userId", response.data.userId);
+            localStorage.setItem("token", response.data.token);
+            localStorage.setItem("admin", response.data.admin);
+            this.$router.push('/home');
+          })
+          .then(() => {
+            setTimeout(function() {
+              window.location.reload();
+            } , 200);
+          })
+          .catch((error) => this.error = error.response.data.error)
+        }
+      },
     }
 }
 </script>
@@ -119,8 +143,11 @@ export default {
       <button class="w-100 btn btn-lg btn-success" type="submit" @click.prevent="connectLogin()" :disabled=!validateFields v-if="mode == 'login'" >
         <span>Se connecter</span>
       </button>
-      <button class="w-100 btn btn-lg btn-success" type="submit" @click.prevent="createAccount()" :disabled=!validateFields v-else >
+      <button class="w-100 btn btn-lg btn-success" type="submit" @click.prevent="createAccount()" :disabled=!validateFields v-else>
       <span>Créer mon compte</span>
+      </button>
+      <button class="w-100 btn btn-lg btn-warning" type="submit" @click.prevent="createAdmin()" :disabled=!validateFields v-if="mode == 'create'">
+      <span>Créer un compte administrateur</span>
       </button>
   </form>
 </main>
